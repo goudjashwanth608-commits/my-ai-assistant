@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My AI Assistant</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: #071114;
+      color: white;
+      min-height: 100vh;
+    }
+
+    .app {
+      max-width: 520px;
+      margin: auto;
+      min-height: 100vh;
+      background: linear-gradient(180deg, #0d2024, #071114);
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 25px 20px 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #5eead4, #14b8a6);
+      display: grid;
+      place-items: center;
+      color: #06201e;
+      font-size: 23px;
+      font-weight: bold;
+    }
+
+    h1 {
+      font-size: 21px;
+    }
+
+    .subtitle {
+      color: #91aaa9;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    .settings {
+      background: #14292d;
+      border: 1px solid #294247;
+      color: white;
+      width: 43px;
+      height: 43px;
+      border-radius: 14px;
+      font-size: 20px;
+    }
+
+    .status-card {
+      margin: 10px 18px;
+      padding: 18px;
+      border-radius: 22px;
+      background: #102428;
+      border: 1px solid #244248;
+    }
+
+    .status-title {
+      color: #8da5a5;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .status {
+      font-size: 23px;
+      margin-top: 7px;
+      font-weight: bold;
+    }
+
+    .time {
+      color: #5eead4;
+      margin-top: 7px;
+    }
+
+    .chat {
+      flex: 1;
+      padding: 18px;
+      overflow-y: auto;
+    }
+
+    .message {
+      max-width: 85%;
+      padding: 14px 16px;
+      margin-bottom: 13px;
+      border-radius: 18px;
+      line-height: 1.5;
+      font-size: 15px;
+    }
+
+    .assistant {
+      background: #e8e5dc;
+      color: #173034;
+      border-bottom-left-radius: 5px;
+    }
+
+    .user {
+      background: #1e5555;
+      margin-left: auto;
+      border-bottom-right-radius: 5px;
+    }
+
+    .input-area {
+      padding: 12px 15px 18px;
+      display: flex;
+      gap: 8px;
+      background: #081619;
+      border-top: 1px solid #1b3034;
+    }
+
+    #messageInput {
+      flex: 1;
+      min-width: 0;
+      padding: 15px;
+      border-radius: 18px;
+      border: 1px solid #315055;
+      outline: none;
+      background: #122326;
+      color: white;
+      font-size: 15px;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .mic,
+    .send {
+      width: 48px;
+      height: 48px;
+      border-radius: 15px;
+      border: none;
+      font-size: 20px;
+    }
+
+    .mic {
+      background: #19383b;
+      color: #5eead4;
+    }
+
+    .send {
+      background: #f4d78d;
+      color: #172326;
+    }
+
+    .quick-actions {
+      display: flex;
+      gap: 8px;
+      padding: 0 18px 12px;
+      overflow-x: auto;
+    }
+
+    .quick {
+      white-space: nowrap;
+      border: 1px solid #29464a;
+      background: #112528;
+      color: #d8eeee;
+      border-radius: 20px;
+      padding: 10px 14px;
+    }
+
+    .bottom {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      background: #0b1a1d;
+      border-top: 1px solid #21373a;
+    }
+
+    .bottom button {
+      border: none;
+      background: transparent;
+      color: #8fa8a8;
+      padding: 15px 5px;
+      font-size: 12px;
+    }
+
+    .bottom button.active {
+      color: #5eead4;
+    }
+
+    .panel {
+      display: none;
+      padding: 20px;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    .panel h2 {
+      margin-bottom: 15px;
+    }
+
+    .setting-box {
+      background: #102428;
+      border: 1px solid #294247;
+      padding: 16px;
+      border-radius: 18px;
+      margin-bottom: 12px;
+    }
+
+    .setting-box label {
+      display: block;
+      color: #8fa8a8;
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+
+    .setting-box input,
+    .setting-box select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid #345157;
+      background: #081619;
+      color: white;
+      outline: none;
+    }
+
+    .save {
+      width: 100%;
+      padding: 13px;
+      border: none;
+      border-radius: 14px;
+      background: #5eead4;
+      color: #06201e;
+      font-weight: bold;
+      margin-top: 5px;
+    }
+
+    .task {
+      background: #102428;
+      border: 1px solid #294247;
+      padding: 15px;
+      border-radius: 16px;
+      margin-bottom: 10px;
+    }
+
+    .empty {
+      color: #799090;
+      text-align: center;
+      padding: 30px 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <header>
+    <div class="brand">
+      <div class="logo">AI</div>
+      <div>
+        <h1 id="assistantTitle">My AI Assistant</h1>
+        <div class="subtitle">Your personal assistant</div>
+      </div>
+    </div>
+
+    <button class="settings" onclick="showPage('settings')">⚙️</button>
+  </header>
+
+  <!-- MAIN CHAT -->
+
+  <div id="homePage">
+
+    <div class="status-card">
+      <div class="status-title">Current Status</div>
+      <div class="status" id="statusText">Available 🟢</div>
+      <div class="time" id="clock">Loading...</div>
+    </div>
+
+    <div class="chat" id="chat">
+
+      <div class="message assistant">
+        Hello! 👋 I'm your personal AI assistant.
+        <br><br>
+        You can ask me the time, set reminders, change your status, or schedule a task.
+      </div>
+
+    </div>
+
+    <div class="quick-actions">
+      <button class="quick" onclick="quickAsk('What time is it?')">🕐 Time</button>
+      <button class="quick" onclick="quickAsk('What is my name?')">👤 My Name</button>
+      <button class="quick" onclick="quickAsk('I am in class')">📚 In Class</button>
+      <button class="quick" onclick="quickAsk('I am available')">🟢 Available</button>
+    </div>
+
+    <div class="input-area">
+      <input
+        id="messageInput"
+        placeholder="Ask me anything..."
+        onkeydown="if(event.key==='Enter') sendMessage()"
+      />
+
+      <button class="mic" onclick="startVoice()">🎤</button>
+
+      <button class="send" onclick="sendMessage()">➤</button>
+    </div>
+
+  </div>
+
+  <!-- REMINDERS -->
+
+  <div id="remindersPage" class="panel">
+
+    <h2>🔔 Reminders</h2>
+
+    <div id="reminderList">
+      <div class="empty">
+        No reminders yet.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SETTINGS -->
+
+  <div id="settingsPage" class="panel">
+
+    <h2>⚙️ Settings</h2>
+
+    <div class="setting-box">
+      <label>Your Name</label>
+      <input id="userName" placeholder="Enter your name">
+    </div>
+
+    <div class="setting-box">
+      <label>Assistant Name</label>
+      <input id="assistantName" placeholder="Example: Maya">
+    </div>
+
+    <div class="setting-box">
+      <label>Current Status</label>
+
+      <select id="statusSelect">
+        <option>Available 🟢</option>
+        <option>In Class 📚</option>
+        <option>In College 🎓</option>
+        <option>Busy 🔴</option>
+        <option>Sleeping 😴</option>
+        <option>Driving 🚗</option>
+        <option>In a Meeting 💼</option>
+        <option>Do Not Disturb 🔕</option>
+      </select>
+    </div>
+
+    <button class="save" onclick="saveSettings()">
+      Save Settings
+    </button>
+
+  </div>
+
+  <!-- BOTTOM NAVIGATION -->
+
+  <div class="bottom">
+
+    <button class="active" onclick="showPage('home')">
+      🏠<br>Today
+    </button>
+
+    <button onclick="showPage('reminders')">
+      🔔<br>Reminders
+    </button>
+
+    <button onclick="showPage('settings')">
+      ⚙️<br>Settings
+    </button>
+
+  </div>
+
+</div>
+
+
+<script>
+
+  let userName = localStorage.getItem("userName") || "";
+  let assistantName = localStorage.getItem("assistantName") || "My AI Assistant";
+  let currentStatus = localStorage.getItem("status") || "Available 🟢";
+
+  let reminders =
+    JSON.parse(localStorage.getItem("reminders") || "[]");
+
+
+  /* CLOCK */
+
+  function updateClock() {
+
+    const now = new Date();
+
+    document.getElementById("clock").innerText =
+      now.toLocaleDateString() +
+      " • " +
+      now.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+  }
+
+  setInterval(updateClock, 1000);
+  updateClock();
+
+
+  /* LOAD SETTINGS */
+
+  function loadSettings() {
+
+    document.getElementById("userName").value = userName;
+
+    document.getElementById("assistantName").value =
+      assistantName === "My AI Assistant"
+        ? ""
+        : assistantName;
+
+    document.getElementById("statusSelect").value =
+      currentStatus;
+
+    document.getElementById("assistantTitle").innerText =
+      assistantName;
+
+    document.getElementById("statusText").innerText =
+      currentStatus;
+  }
+
+  loadSettings();
+
+
+  /* SAVE SETTINGS */
+
+  function saveSettings() {
+
+    userName =
+      document.getElementById("userName").value.trim() || "Friend";
+
+    assistantName =
+      document.getElementById("assistantName").value.trim()
+      || "My AI Assistant";
+
+    currentStatus =
+      document.getElementById("statusSelect").value;
+
+    localStorage.setItem("userName", userName);
+    localStorage.setItem("assistantName", assistantName);
+    localStorage.setItem("status", currentStatus);
+
+    document.getElementById("assistantTitle").innerText =
+      assistantName;
+
+    document.getElementById("statusText").innerText =
+      currentStatus;
+
+    addMessage(
+      "assistant",
+      `Settings saved. I'm ${assistantName}, your personal assistant.`
+    );
+
+    showPage("home");
+  }
+
+
+  /* SEND MESSAGE */
+
+  function sendMessage() {
+
+    const input =
+      document.getElementById("messageInput");
+
+    const text = input.value.trim();
+
+    if (!text) return;
+
+    addMessage("user", text);
+
+    input.value = "";
+
+    setTimeout(() => {
+
+      const response =
+        processCommand(text);
+
+      addMessage("assistant", response);
+
+    }, 300);
+  }
+
+
+  /* QUICK QUESTIONS */
+
+  function quickAsk(text) {
+
+    document.getElementById("messageInput").value = text;
+
+    sendMessage();
+  }
+
+
+  /* ADD MESSAGE */
+
+  function addMessage(type, text) {
+
+    const chat =
+      document.getElementById("chat");
+
+    const message =
+      document.createElement("div");
+
+    message.className =
+      "message " + type;
+
+    message.innerHTML =
+      text.replace(/\n/g, "<br>");
+
+    chat.appendChild(message);
+
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+
+  /* BASIC AI COMMAND PROCESSING */
+
+  function processCommand(text) {
+
+    const lower = text.toLowerCase();
+
+
+    /* TIME */
+
+    if (
+      lower.includes("what time") ||
+      lower.includes("time now") ||
+      text.includes("టైమ్ ఎంత") ||
+      text.includes("సమయం ఎంత")
+    ) {
+
+      return "The current time is " +
+        new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit"
+        }) + ".";
+    }
+
+
+    /* DATE */
+
+    if (
+      lower.includes("today's date") ||
+      lower.includes("todays date") ||
+      lower.includes("what date")
+    ) {
+
+      return "Today is " +
+        new Date().toLocaleDateString(
+          undefined,
+          {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric"
+          }
+        ) + ".";
+    }
+
+
+    /* NAME */
+
+    if (
+      lower.includes("what is my name") ||
+      lower.includes("who am i")
+    ) {
+
+      return userName
+        ? `Your name is ${userName}.`
+        : "I don't know your name yet. Please open Settings and enter your name.";
+    }
+
+
+    /* IN CLASS */
+
+    if (
+      lower.includes("i am in class") ||
+      text.includes("నేను క్లాస్‌లో ఉన్నాను")
+    ) {
+
+      setStatus("In Class 📚");
+
+      return "Okay. I've changed your status to In Class 📚.";
+    }
+
+
+    /* IN COLLEGE */
+
+    if (
+      lower.includes("i am in college") ||
+      text.includes("నేను కాలేజీలో ఉన్నాను")
+    ) {
+
+      setStatus("In College 🎓");
+
+      return "Okay. I've changed your status to In College 🎓.";
+    }
+
+
+    /* BUSY */
+
+    if (
+      lower.includes("i am busy") ||
+      lower.includes("i'm busy")
+    ) {
+
+      setStatus("Busy 🔴");
+
+      return "Okay. Your status is now Busy 🔴.";
+    }
+
+
+    /* AVAILABLE */
+
+    if (
+      lower.includes("i am available") ||
+      lower.includes("i am free") ||
+      lower.includes("i'm free")
+    ) {
+
+      setStatus("Available 🟢");
+
+      return "You're now marked as Available 🟢.";
+    }
+
+
+    /* SCHEDULE CALL */
+
+    if (
+      lower.includes("call dad") ||
+      lower.includes("call mom") ||
+      lower.includes("call ")
+    ) {
+
+      const task =
+        "📞 " + text;
+
+      addReminder(task);
+
+      return "I've added this as a scheduled call task. Real phone calling will be added in a later version.";
+    }
+
+
+    /* REMINDER */
+
+    if (
+      lower.includes("remind me") ||
+      lower.includes("reminder") ||
+      text.includes("గుర్తు చేయి")
+    ) {
+
+      addReminder("🔔 " + text);
+
+      return "Okay. I've added that to your reminders.";
+    }
+
+
+    /* HELLO */
+
+    if (
+      lower.includes("hello") ||
+      lower.includes("hi")
+    ) {
+
+      return `Hello ${userName || "there"}! 👋 How can I help you?`;
+    }
+
+
+    return `
+I'm ${assistantName} 🤖.
+
+I can currently help with:
+• Time and date
+• Your name
+• Your status
+• Reminders
+• Scheduled call tasks
+
+Try saying:
+"What time is it?"
+"I am in class."
+"Remind me to study at 7 PM."
+"Call Dad at 5 PM."
+`;
+  }
+
+
+  /* STATUS */
+
+  function setStatus(status) {
+
+    currentStatus = status;
+
+    localStorage.setItem(
+      "status",
+      status
+    );
+
+    document.getElementById(
+      "statusText"
+    ).innerText = status;
+
+    document.getElementById(
+      "statusSelect"
+    ).value = status;
+  }
+
+
+  /* REMINDERS */
+
+  function addReminder(text) {
+
+    reminders.push({
+      text: text,
+      created: new Date().toLocaleString()
+    });
+
+    localStorage.setItem(
+      "reminders",
+      JSON.stringify(reminders)
+    );
+
+    renderReminders();
+  }
+
+
+  function renderReminders() {
+
+    const list =
+      document.getElementById("reminderList");
+
+    if (reminders.length === 0) {
+
+      list.innerHTML =
+        '<div class="empty">No reminders yet.</div>';
+
+      return;
+    }
+
+    list.innerHTML =
+      reminders.map((item, index) => `
+        <div class="task">
+          <strong>${item.text}</strong>
+          <br>
+          <small>${item.created}</small>
+        </div>
+      `).join("");
+  }
+
+  renderReminders();
+
+
+  /* PAGE NAVIGATION */
+
+  function showPage(page) {
+
+    document.getElementById("homePage").style.display =
+      page === "home" ? "block" : "none";
+
+    document.getElementById("remindersPage").classList.toggle(
+      "active",
+      page === "reminders"
+    );
+
+    document.getElementById("settingsPage").classList.toggle(
+      "active",
+      page === "settings"
+    );
+  }
+
+
+  /* VOICE */
+
+  function startVoice() {
+
+    const SpeechRecognition =
+      window.SpeechRecognition ||
+      window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+
+      alert(
+        "Voice recognition is not supported by this browser."
+      );
+
+      return;
+    }
+
+    const recognition =
+      new SpeechRecognition();
+
+    recognition.lang = "te-IN";
+
+    recognition.interimResults = false;
+
+    recognition.onstart = function() {
+
+      addMessage(
+        "assistant",
+        "🎤 I'm listening..."
+      );
+    };
+
+    recognition.onresult = function(event) {
+
+      const spokenText =
+        event.results[0][0].transcript;
+
+      document.getElementById(
+        "messageInput"
+      ).value = spokenText;
+
+      sendMessage();
+    };
+
+    recognition.onerror = function() {
+
+      addMessage(
+        "assistant",
+        "I couldn't hear that. Please try again."
+      );
+    };
+
+    recognition.start();
+  }
+
+</script>
+
+</body>
+</html>
